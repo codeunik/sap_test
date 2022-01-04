@@ -6,6 +6,7 @@ from patchify import patchify, unpatchify
 import matplotlib.pyplot as plt
 import numpy as np
 import os
+import random
 
 from model import UNET
 
@@ -32,10 +33,13 @@ class MaskDataset(Dataset):
 
         patch_orientation = np.array(pcd_patches.shape[:3])
         num_patches = patch_orientation.cumprod()[-1]
+        
+        n_patches = 8
+        n_random_patch_indices = random.sample(range(num_patches), n_patches)
 
         return \
-        [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in range(num_patches)],\
-        [torch.tensor(mask_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in range(num_patches)]
+        [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_random_patch_indices],\
+        [torch.tensor(mask_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_random_patch_indices]
 
     def __len__(self):
         return len(self.filenames)
@@ -56,7 +60,7 @@ def data_collator(batch):
 
 # hyperparameters
 num_epochs = 1000
-batch_size = 2
+batch_size = 1
 learning_rate = 0.0001
 
 model = UNET(1, 1, features=[32, 64, 128, 256, 512]).to(device)
