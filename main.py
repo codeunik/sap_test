@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
-
+from patchify import patchify, unpatchify
 import matplotlib.pyplot as plt
 import numpy as np
 import os
@@ -26,15 +26,29 @@ class MaskDataset(Dataset):
         noise = np.random.randint(0, pointcloud.shape[0], (np.random.randint(0, 1000), 3))
         pointcloud[noise[:,0], noise[:,1], noise[:,2]] = 1
 
-        return (
-            torch.tensor(pointcloud, dtype=torch.float)[None,:],
-            torch.tensor(mask, dtype=torch.float)[None,:],
-        )
+        patch_size = 96
+        pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)
+        mask_patches = patchify(mask, (patch_size,patch_size,patch_size), step=patch_size)
 
+        patch_orientation = np.array(pcd_patches.shape[:3])
+        num_patches = patch_orientation.cumprod()[-1]
+
+        return \
+        [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in range(num_patches)],\
+        [torch.tensor(mask_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in range(num_patches)]
 
     def __len__(self):
         return len(self.filenames)
 
+def data_collator(batch):
+    pcd_patches = torch.cat(batch[0][0],dim=0)
+    mask_patches = torch.cat(batch[0][1],dim=0)
+
+    for i in range(1, len(batch)):
+        pcd_patches = torch.cat([pcd_patches, *batch[i][0]],dim=0)
+        mask_patches = torch.cat([mask_patches, *batch[i][1]],dim=0)
+
+    return pcd_patches, mask_patches
 
 # train_dataset = MaskDataset('data/train')
 # print(train_dataset[0])
@@ -42,7 +56,7 @@ class MaskDataset(Dataset):
 
 # hyperparameters
 num_epochs = 1000
-batch_size = 16
+batch_size = 2
 learning_rate = 0.0001
 
 model = UNET(1, 1, features=[32, 64, 128, 256, 512]).to(device)
@@ -59,7 +73,7 @@ except:
 train_dataset = MaskDataset('./data/train')
 # test_dataset = MaskDataset('./data/test')
 
-train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
+train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
 # test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
 
 loss_history = []
