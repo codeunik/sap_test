@@ -111,7 +111,7 @@ for epoch in range(num_epochs):
             plt.imsave(f"vis2/mask{i}_o.png", masks[0,0,:,:,i].cpu(), cmap=plt.cm.gray)
             plt.imsave(f"vis2/mask{i}_p.png", outputs[0,0,:,:,i].detach().cpu(), cmap=plt.cm.gray)  
 
-        # loss_history = loss_history[-5000:]
+        # loss_history = loss_history[-5000:] 
         plt.plot(loss_history)
         plt.show()
                 
