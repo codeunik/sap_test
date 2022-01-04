@@ -1,0 +1,4 @@
+data/train/poinclouds/*
+data/train/masks/*
+vis
+__pycache__
