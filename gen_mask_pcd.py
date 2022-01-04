@@ -12,6 +12,9 @@ os.system('mkdir -p data/train/masks')
 os.system('mkdir -p data/test/pointclouds')
 os.system('mkdir -p data/test/masks')
 
+os.system('mkdir -p vis')
+os.system('mkdir -p vis2')
+
 for _, _, f in os.walk(f'data/meshes'):
     mesh_files = f
 

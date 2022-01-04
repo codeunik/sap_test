@@ -90,8 +90,8 @@ for epoch in range(num_epochs):
             torch.save(model, f'model{epoch}.pth')
         
         for i in range(masks.shape[-1]):
-            plt.imsave(f"vis/mask{i}_o.png", masks[0,:,:,i].cpu(), cmap=plt.cm.gray)
-            plt.imsave(f"vis/mask{i}_p.png", outputs[0,:,:,i].detach().cpu(), cmap=plt.cm.gray)  
+            plt.imsave(f"vis2/mask{i}_o.png", masks[0,:,:,i].cpu(), cmap=plt.cm.gray)
+            plt.imsave(f"vis2/mask{i}_p.png", outputs[0,:,:,i].detach().cpu(), cmap=plt.cm.gray)  
 
         # loss_history = loss_history[-5000:]
         plt.plot(loss_history)
