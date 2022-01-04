@@ -26,7 +26,7 @@ class MaskDataset(Dataset):
         noise = np.random.randint(0, pointcloud.shape[0], (np.random.randint(0, 1000), 3))
         pointcloud[noise[:,0], noise[:,1], noise[:,2]] = 1
 
-        patch_size = 96
+        patch_size = 64
         pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)
         mask_patches = patchify(mask, (patch_size,patch_size,patch_size), step=patch_size)
 
@@ -59,7 +59,7 @@ num_epochs = 1000
 batch_size = 2
 learning_rate = 0.0001
 
-model = UNET(1, 1, features=[32, 64, 128, 256, 512]).to(device)
+model = UNET(1, 1, features=[64, 128, 256, 512]).to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate)
 criterion = nn.L1Loss()
 
