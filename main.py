@@ -11,6 +11,7 @@ from model import UNET
 
 # device config
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+torch.cuda.empty_cache()
 
 class MaskDataset(Dataset):
     def __init__(self, root_dir):
