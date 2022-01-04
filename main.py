@@ -113,6 +113,7 @@ for epoch in range(num_epochs):
 
         # loss_history = loss_history[-5000:] 
         plt.plot(loss_history)
-        plt.show()
+        plt.savefig('loss.png')
+        # plt.show()
                 
             
