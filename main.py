@@ -35,7 +35,14 @@ class MaskDataset(Dataset):
         num_patches = patch_orientation.cumprod()[-1]
         
         n_patches = 8
-        n_random_patch_indices = random.sample(range(num_patches), n_patches)
+        n_random_patch_indices = []
+        range_patches = list(range(num_patches))
+        while len(n_random_patch_indices) < num_patches:
+            random_patch = random.randint(range_patches, 1)
+            if (pcd_patches[np.unravel_index(random_patch, patch_orientation)] == 0).all():
+                range_patches.remove(random_patch)
+            else:
+                n_random_patch_indices.append(random_patch)
 
         return \
         [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_random_patch_indices],\
