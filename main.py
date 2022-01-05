@@ -23,30 +23,35 @@ class MaskDataset(Dataset):
     def __getitem__(self, index):
         pointcloud = np.load(f'{self.root_dir}/pointclouds/{self.filenames[index]}')
         mask = np.load(f'{self.root_dir}/masks/{self.filenames[index]}') 
-        
+        self.unpatchify_shape = pointcloud.shape
+
         patch_size = 64
         pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)
         mask_patches = patchify(mask, (patch_size,patch_size,patch_size), step=patch_size)
 
+        self.patchify_shape = pcd_patches.shape
         patch_orientation = np.array(pcd_patches.shape[:3])
         num_patches = patch_orientation.cumprod()[-1]
         
-        n_patches = 4
-        n_random_patch_indices = []
-        range_patches = list(range(num_patches))
-        while len(n_random_patch_indices) < n_patches:
-            random_patch = random.sample(range_patches, 1)[0]
-            if (pcd_patches[np.unravel_index(random_patch, patch_orientation)] == 0).all():
-                range_patches.remove(random_patch)
-            else:
-                noise = np.random.randint(0, patch_size, (np.random.randint(0, 1000//num_patches), 3))
-                pcd_patches[np.unravel_index(random_patch, patch_orientation)][noise[:,0], noise[:,1], noise[:,2]] = 1
+        if 'train' in self.root_dir:
+            n_patches = 4
+            n_patch_indices = []
+            range_patches = list(range(num_patches))
+            while len(n_patch_indices) < n_patches:
+                random_patch = random.sample(range_patches, 1)[0]
+                if (pcd_patches[np.unravel_index(random_patch, patch_orientation)] == 0).all():
+                    range_patches.remove(random_patch)
+                else:
+                    noise = np.random.randint(0, patch_size, (np.random.randint(0, 1000//num_patches), 3))
+                    pcd_patches[np.unravel_index(random_patch, patch_orientation)][noise[:,0], noise[:,1], noise[:,2]] = 1
 
-                n_random_patch_indices.append(random_patch)
+                    n_patch_indices.append(random_patch)
+        else:
+            n_patch_indices = list(range(num_patches))
 
         return \
-        [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_random_patch_indices],\
-        [torch.tensor(mask_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_random_patch_indices]
+        [torch.tensor(pcd_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_patch_indices],\
+        [torch.tensor(mask_patches[np.unravel_index(index, patch_orientation)], dtype=torch.float)[None,None,:] for index in n_patch_indices]
 
     def __len__(self):
         return len(self.filenames)
@@ -82,10 +87,10 @@ except:
 
 # dataset
 train_dataset = MaskDataset('./data/train')
-# test_dataset = MaskDataset('./data/test')
+test_dataset = MaskDataset('./data/test')
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
-# test_loader = DataLoader(dataset=test_dataset, batch_size=batch_size, shuffle=False)
+# test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
 
 loss_history = []
 rolling_loss = 0
@@ -116,9 +121,22 @@ for epoch in range(num_epochs):
             torch.save(model.state_dict(), f'model.pth')
             old_loss = rolling_loss
 
-        for i in range(masks.shape[-1]):
-            plt.imsave(f"vis2/mask{i}_o.png", masks[0,0,:,:,i].cpu(), cmap=plt.cm.gray)
-            plt.imsave(f"vis2/mask{i}_p.png", outputs[0,0,:,:,i].detach().cpu(), cmap=plt.cm.gray)  
+        with torch.no_grad():
+            test_pointcloud_patches, test_mask_patches = test_dataset[0]
+            test_pointcloud_patches = test_pointcloud_patches.to(device)
+            test_mask_patches = test_mask_patches.to(device)
+
+            predicted_mask_patches = model(test_pointcloud_patches)
+
+            predicted_mask = predicted_mask_patches.reshape(test_dataset.patchify_shape)
+            original_mask = test_mask_patches.reshape(test_dataset.patchify_shape)
+
+            predicted_mask = unpatchify(predicted_mask, test_dataset.unpatchify_shape)
+            original_mask = unpatchify(original_mask, test_dataset.unpatchify_shape)
+
+            for i in range(masks.shape[-1]):
+                plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i].cpu(), cmap=plt.cm.gray)
+                plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i].detach().cpu(), cmap=plt.cm.gray)  
 
         # loss_history = loss_history[-5000:] 
         plt.plot(loss_history)
