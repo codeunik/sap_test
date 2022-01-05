@@ -90,11 +90,29 @@ train_dataset = MaskDataset('./data/train')
 test_dataset = MaskDataset('./data/test')
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
-# test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
+test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
 
 loss_history = []
 rolling_loss = 0
 old_loss = 9999
+
+with torch.no_grad():
+    test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
+    test_pointcloud_patches = test_pointcloud_patches.to(device)
+    test_mask_patches = test_mask_patches.to(device)
+
+    predicted_mask_patches = model(test_pointcloud_patches)
+
+    predicted_mask = predicted_mask_patches.reshape(test_dataset.patchify_shape)
+    original_mask = test_mask_patches.reshape(test_dataset.patchify_shape)
+
+    predicted_mask = unpatchify(predicted_mask, test_dataset.unpatchify_shape)
+    original_mask = unpatchify(original_mask, test_dataset.unpatchify_shape)
+
+    for i in range(predicted_mask.shape[-1]):
+        plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i].cpu(), cmap=plt.cm.gray)
+        plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i].cpu(), cmap=plt.cm.gray)  
+
 
 # training loop
 for epoch in range(num_epochs):
@@ -122,7 +140,7 @@ for epoch in range(num_epochs):
             old_loss = rolling_loss
 
         with torch.no_grad():
-            test_pointcloud_patches, test_mask_patches = test_dataset[0]
+            test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
             test_pointcloud_patches = test_pointcloud_patches.to(device)
             test_mask_patches = test_mask_patches.to(device)
 
