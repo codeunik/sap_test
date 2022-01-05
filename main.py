@@ -97,8 +97,8 @@ rolling_loss = 0
 old_loss = 9999
 
 with torch.no_grad():
+    print(next(iter(test_loader)))
     test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
-    print(test_pointcloud_patches)
     test_pointcloud_patches = test_pointcloud_patches.to(device)
     test_mask_patches = test_mask_patches.to(device)
 
