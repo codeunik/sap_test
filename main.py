@@ -82,6 +82,7 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=
 
 loss_history = []
 rolling_loss = 0
+old_loss = 9999
 
 # training loop
 for epoch in range(num_epochs):
@@ -104,9 +105,10 @@ for epoch in range(num_epochs):
             print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {rolling_loss:.4f}')
     
     if epoch % 10 == 0:
-        if rolling_loss == min(loss_history):
+        if rolling_loss < old_loss:
             torch.save(model.state_dict(), f'model{epoch}.pth')
-        
+            old_loss = rolling_loss
+
         for i in range(masks.shape[-1]):
             plt.imsave(f"vis2/mask{i}_o.png", masks[0,0,:,:,i].cpu(), cmap=plt.cm.gray)
             plt.imsave(f"vis2/mask{i}_p.png", outputs[0,0,:,:,i].detach().cpu(), cmap=plt.cm.gray)  
