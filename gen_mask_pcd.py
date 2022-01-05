@@ -27,14 +27,11 @@ for mesh_file in mesh_files:
     for _ in range(10):
         mesh_copy = copy.deepcopy(mesh)
         mesh_copy.rotate(o3d.geometry.get_rotation_matrix_from_xyz(np.random.random(3) * np.pi), mesh_copy.get_center())
-        max_coord = max(mesh_copy.get_max_bound())
-        min_coord = min(mesh_copy.get_min_bound())
-        center = (max_coord + min_coord)/2
-        center = np.array([center, center, center])
-        mesh_copy.translate(-center)
-        mesh_copy.scale(0.9*voxel_grid_size/((max_coord-min_coord)), (0,0,0))
-        mesh_copy.translate(np.array([voxel_grid_size, voxel_grid_size, voxel_grid_size])/2 - center)
-        
+        mesh_copy.translate(-mesh_copy.get_min_bound())
+        mesh_copy.scale(0.9*voxel_grid_size/max(mesh_copy.get_max_bound()), (0,0,0))
+        delta = 0.1 * voxel_grid_size / 2
+        mesh_copy.translate(np.ones(3)*delta)
+
         pointcloud = np.zeros((voxel_grid_size, voxel_grid_size, voxel_grid_size))
         mask = np.zeros((voxel_grid_size, voxel_grid_size, voxel_grid_size))
 
