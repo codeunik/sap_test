@@ -15,14 +15,15 @@ os.system('mkdir -p data/test/masks')
 os.system('mkdir -p vis')
 os.system('mkdir -p vis2')
 
-for _, _, f in os.walk(f'data/meshes'):
+# purpose = 'train'
+purpose = 'test'
+for _, _, f in os.walk(f'data/{purpose}/meshes'):
     mesh_files = f
 
-purpose = 'train'
 count = 0
 
 for mesh_file in mesh_files:
-    mesh = o3d.io.read_triangle_mesh(f"data/meshes/{mesh_file}")
+    mesh = o3d.io.read_triangle_mesh(f"data/{purpose}/meshes/{mesh_file}")
     
     for _ in range(10):
         mesh_copy = copy.deepcopy(mesh)
