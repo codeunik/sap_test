@@ -32,7 +32,7 @@ for mesh_file in mesh_files:
         center = (max_coord + min_coord)/2
         center = np.array([center, center, center])
         mesh_copy.translate(-center)
-        mesh_copy.scale(0.95*voxel_grid_size/((max_coord-min_coord)), (0,0,0))
+        mesh_copy.scale(0.9*voxel_grid_size/((max_coord-min_coord)), (0,0,0))
         mesh_copy.translate(np.array([voxel_grid_size, voxel_grid_size, voxel_grid_size])/2 - center)
         
         pointcloud = np.zeros((voxel_grid_size, voxel_grid_size, voxel_grid_size))
