@@ -1,4 +1,6 @@
 data/train/pointclouds/
 data/train/masks/
+data/test/pointclouds/
+data/test/masks/
 vis/
 __pycache__
