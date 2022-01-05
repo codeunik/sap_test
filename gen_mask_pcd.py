@@ -37,8 +37,9 @@ for mesh_file in mesh_files:
         mask = np.zeros((voxel_grid_size, voxel_grid_size, voxel_grid_size))
 
         pcd = mesh_copy.sample_points_uniformly(number_of_points=10000)
+        pcd = np.asarray(pcd.points)
         pcd = pcd + np.random.randn(10000, 3)
-        pcd = np.asarray(pcd.points, dtype=int)
+        pcd = np.asarray(pcd, dtype=int)
         pointcloud[pcd[:,0], pcd[:,1], pcd[:,2]] = 1
 
         pcd = mesh_copy.sample_points_uniformly(number_of_points=100000)
