@@ -2,5 +2,5 @@ data/train/pointclouds/
 data/train/masks/
 data/test/pointclouds/
 data/test/masks/
-vis/
+vis/ 
 __pycache__
