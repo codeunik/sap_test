@@ -96,24 +96,6 @@ loss_history = []
 rolling_loss = 0
 old_loss = 9999
 
-with torch.no_grad():
-    test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
-    test_pointcloud_patches = test_pointcloud_patches.to(device)
-    test_mask_patches = test_mask_patches
-
-    predicted_mask_patches = model(test_pointcloud_patches)
-
-    predicted_mask = predicted_mask_patches.reshape(test_dataset.patchify_shape)
-    original_mask = test_mask_patches.reshape(test_dataset.patchify_shape)
-
-    predicted_mask = unpatchify(predicted_mask.cpu().numpy(), test_dataset.unpatchify_shape)
-    original_mask = unpatchify(original_mask.numpy(), test_dataset.unpatchify_shape)
-
-    for i in range(predicted_mask.shape[-1]):
-        plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i], cmap=plt.cm.gray)
-        plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i], cmap=plt.cm.gray)  
-
-
 # training loop
 for epoch in range(num_epochs):
     for i, (pointclouds, masks) in enumerate(train_loader):
@@ -142,19 +124,19 @@ for epoch in range(num_epochs):
         with torch.no_grad():
             test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
             test_pointcloud_patches = test_pointcloud_patches.to(device)
-            test_mask_patches = test_mask_patches.to(device)
+            test_mask_patches = test_mask_patches
 
             predicted_mask_patches = model(test_pointcloud_patches)
 
             predicted_mask = predicted_mask_patches.reshape(test_dataset.patchify_shape)
             original_mask = test_mask_patches.reshape(test_dataset.patchify_shape)
 
-            predicted_mask = unpatchify(predicted_mask, test_dataset.unpatchify_shape)
-            original_mask = unpatchify(original_mask, test_dataset.unpatchify_shape)
+            predicted_mask = unpatchify(predicted_mask.cpu().numpy(), test_dataset.unpatchify_shape)
+            original_mask = unpatchify(original_mask.numpy(), test_dataset.unpatchify_shape)
 
             for i in range(predicted_mask.shape[-1]):
-                plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i].cpu(), cmap=plt.cm.gray)
-                plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i].cpu(), cmap=plt.cm.gray)  
+                plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i], cmap=plt.cm.gray)
+                plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i], cmap=plt.cm.gray)  
 
         # loss_history = loss_history[-5000:] 
         plt.plot(loss_history)
