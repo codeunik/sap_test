@@ -134,9 +134,9 @@ for epoch in range(num_epochs):
             predicted_mask = unpatchify(predicted_mask, test_dataset.unpatchify_shape)
             original_mask = unpatchify(original_mask, test_dataset.unpatchify_shape)
 
-            for i in range(masks.shape[-1]):
+            for i in range(predicted_mask.shape[-1]):
                 plt.imsave(f"vis2/mask{i}_o.png", original_mask[:,:,i].cpu(), cmap=plt.cm.gray)
-                plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i].detach().cpu(), cmap=plt.cm.gray)  
+                plt.imsave(f"vis2/mask{i}_p.png", predicted_mask[:,:,i].cpu(), cmap=plt.cm.gray)  
 
         # loss_history = loss_history[-5000:] 
         plt.plot(loss_history)
