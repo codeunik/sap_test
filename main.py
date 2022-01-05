@@ -24,9 +24,6 @@ class MaskDataset(Dataset):
         pointcloud = np.load(f'{self.root_dir}/pointclouds/{self.filenames[index]}')
         mask = np.load(f'{self.root_dir}/masks/{self.filenames[index]}') 
         
-        noise = np.random.randint(0, pointcloud.shape[0], (np.random.randint(0, 1000), 3))
-        pointcloud[noise[:,0], noise[:,1], noise[:,2]] = 1
-
         patch_size = 64
         pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)
         mask_patches = patchify(mask, (patch_size,patch_size,patch_size), step=patch_size)
@@ -34,14 +31,17 @@ class MaskDataset(Dataset):
         patch_orientation = np.array(pcd_patches.shape[:3])
         num_patches = patch_orientation.cumprod()[-1]
         
-        n_patches = 8
+        n_patches = 4
         n_random_patch_indices = []
         range_patches = list(range(num_patches))
-        while len(n_random_patch_indices) < num_patches:
-            random_patch = random.randint(range_patches, 1)
+        while len(n_random_patch_indices) < n_patches:
+            random_patch = random.sample(range_patches, 1)[0]
             if (pcd_patches[np.unravel_index(random_patch, patch_orientation)] == 0).all():
                 range_patches.remove(random_patch)
             else:
+                noise = np.random.randint(0, patch_size, (np.random.randint(0, 1000//num_patches), 3))
+                pcd_patches[np.unravel_index(random_patch, patch_orientation)][noise[:,0], noise[:,1], noise[:,2]] = 1
+
                 n_random_patch_indices.append(random_patch)
 
         return \
@@ -67,7 +67,7 @@ def data_collator(batch):
 
 # hyperparameters
 num_epochs = 1000
-batch_size = 1
+batch_size = 2
 learning_rate = 0.0001
 
 model = UNET(1, 1, features=[32, 64, 128, 256, 512]).to(device)
