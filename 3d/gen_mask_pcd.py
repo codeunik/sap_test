@@ -4,7 +4,7 @@ import open3d as o3d
 import os
 import copy
 
-voxel_grid_size = 192
+voxel_grid_size = 128
 
 os.system('mkdir -p data/train/pointclouds')
 os.system('mkdir -p data/train/masks')
@@ -40,7 +40,9 @@ for mesh_file in mesh_files:
         pcd = np.asarray(pcd.points)
         pcd = pcd + np.random.randn(10000, 3)
         pcd = np.asarray(pcd, dtype=int)
-        pointcloud[pcd[:,0], pcd[:,1], pcd[:,2]] = 1
+        
+        for x,y,z in pcd:
+            pointcloud[x,y,z] += 1
 
         pcd = mesh_copy.sample_points_uniformly(number_of_points=100000)
         pcd = np.asarray(pcd.points, dtype=int)

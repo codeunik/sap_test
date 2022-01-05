@@ -1,4 +1,4 @@
-import torch
+import torch 
 import torch.nn as nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset, DataLoader
@@ -25,6 +25,12 @@ class MaskDataset(Dataset):
         mask = np.load(f'{self.root_dir}/masks/{self.filenames[index]}') 
         self.unpatchify_shape = pointcloud.shape
 
+        noises = np.random.randint(0, pointcloud.shape[-1], (1000, 3))
+        for x,y,z in noises:
+            pointcloud[x,y,z] += 1
+
+        pointcloud = (pointcloud-pointcloud.mean())/pointcloud.std()
+
         patch_size = 64
         pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)
         mask_patches = patchify(mask, (patch_size,patch_size,patch_size), step=patch_size)
@@ -34,18 +40,8 @@ class MaskDataset(Dataset):
         num_patches = patch_orientation.cumprod()[-1]
         
         if 'train' in self.root_dir:
-            n_patches = 4
-            n_patch_indices = []
-            range_patches = list(range(num_patches))
-            while len(n_patch_indices) < n_patches:
-                random_patch = random.sample(range_patches, 1)[0]
-                if (pcd_patches[np.unravel_index(random_patch, patch_orientation)] == 0).all():
-                    range_patches.remove(random_patch)
-                else:
-                    noise = np.random.randint(0, patch_size, (np.random.randint(0, 1000//num_patches), 3))
-                    pcd_patches[np.unravel_index(random_patch, patch_orientation)][noise[:,0], noise[:,1], noise[:,2]] = 1
-
-                    n_patch_indices.append(random_patch)
+            n_train_patches = 4
+            n_patch_indices = random.sample(range(num_patches), n_train_patches)
         else:
             n_patch_indices = list(range(num_patches))
 
