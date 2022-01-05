@@ -90,7 +90,7 @@ train_dataset = MaskDataset('./data/train')
 test_dataset = MaskDataset('./data/test')
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
-test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, collate_fn=data_collator)
+test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=True, collate_fn=data_collator)
 
 loss_history = []
 rolling_loss = 0
