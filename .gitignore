@@ -1,4 +1,4 @@
-data/train/pointclouds/
+data/train/pointclouds/ 
 data/train/masks/
 data/test/pointclouds/
 data/test/masks/
