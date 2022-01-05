@@ -90,14 +90,13 @@ train_dataset = MaskDataset('./data/train')
 test_dataset = MaskDataset('./data/test')
 
 train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True, collate_fn=data_collator)
-test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False)
+test_loader = DataLoader(dataset=test_dataset, batch_size=1, shuffle=False, collate_fn=data_collator)
 
 loss_history = []
 rolling_loss = 0
 old_loss = 9999
 
 with torch.no_grad():
-    print(next(iter(test_loader)))
     test_pointcloud_patches, test_mask_patches = next(iter(test_loader))
     test_pointcloud_patches = test_pointcloud_patches.to(device)
     test_mask_patches = test_mask_patches.to(device)
