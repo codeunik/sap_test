@@ -106,7 +106,7 @@ with torch.no_grad():
     predicted_mask = predicted_mask_patches.reshape(test_dataset.patchify_shape)
     original_mask = test_mask_patches.reshape(test_dataset.patchify_shape)
 
-    predicted_mask = unpatchify(predicted_mask, test_dataset.unpatchify_shape)
+    predicted_mask = unpatchify(predicted_mask.cpu(), test_dataset.unpatchify_shape)
     original_mask = unpatchify(original_mask, test_dataset.unpatchify_shape)
 
     for i in range(predicted_mask.shape[-1]):
