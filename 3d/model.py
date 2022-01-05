@@ -65,7 +65,7 @@ class UNET(nn.Module):
             concat_skip = torch.cat((skip_connection, x), dim=1)
             x = self.ups[idx+1](concat_skip)
 
-        return self.final_conv(x)
+        return self.final_conv(x) 
 
 def test():
     x = torch.randn((4, 1, 96, 96, 96))
