@@ -1,6 +1,7 @@
-data/train/pointclouds/ 
-data/train/masks/
-data/test/pointclouds/
-data/test/masks/
-vis/ 
-__pycache__
+3d/data/train/pointclouds/ 
+3d/data/train/masks/
+3d/data/test/pointclouds/
+3d/data/test/masks/
+3d/vis/ 
+3d/vis2/
+3d/__pycache__/
