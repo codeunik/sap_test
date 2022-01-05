@@ -105,8 +105,8 @@ for epoch in range(num_epochs):
             print(f'epoch {epoch+1} / {num_epochs}, step {i+1}, loss = {rolling_loss:.4f}')
     
     if epoch % 10 == 0:
-        if rolling_loss < old_loss:
-            torch.save(model.state_dict(), f'model{epoch}.pth')
+        if loss.item() < old_loss:
+            torch.save(model.state_dict(), f'model.pth')
             old_loss = rolling_loss
 
         for i in range(masks.shape[-1]):
