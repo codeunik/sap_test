@@ -142,4 +142,5 @@ for epoch in range(num_epochs):
         plt.savefig('loss.png')
         # plt.show()
                 
+
             
