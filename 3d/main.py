@@ -25,11 +25,11 @@ class MaskDataset(Dataset):
         mask = np.load(f'{self.root_dir}/masks/{self.filenames[index]}') 
         self.unpatchify_shape = pointcloud.shape
 
-        noises = np.random.randint(0, pointcloud.shape[-1], (1000, 3))
-        for x,y,z in noises:
-            pointcloud[x,y,z] += 1
+        # noises = np.random.randint(0, pointcloud.shape[-1], (1000, 3))
+        # for x,y,z in noises:
+        #     pointcloud[x,y,z] += 1
 
-        pointcloud = (pointcloud-pointcloud.mean())/pointcloud.std()
+        # pointcloud = (pointcloud-pointcloud.mean())/pointcloud.std()
 
         patch_size = 64
         pcd_patches = patchify(pointcloud, (patch_size,patch_size,patch_size), step=patch_size)

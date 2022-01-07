@@ -6,6 +6,7 @@
 3d/vis2/
 3d/__pycache__/
 3d/model.pth
+3d/data2/
 
 2d/__pycache__/
 2d/model.pkl 
